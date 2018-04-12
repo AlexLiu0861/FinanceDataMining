@@ -19,6 +19,7 @@ def init(context):
     #这是可删改的全局变量，也可增加需要的全局变量
     context.OBSERVATION = 200
 
+
     #***初始化时订阅合约行情。订阅之后的合约行情会在handle_bar中进行更新***
     subscribe(context.s1)
     #***控制日志输出信号***
@@ -34,12 +35,10 @@ def before_trading(context):
     prices = history_bars(context.s1, context.OBSERVATION, '1d', 'close')
     ts_log = np.log(prices)
     #预测价格，策略为今日价格涨跌与昨日相同，根据需求删改
-
     arima = ARIMA(ts_log,order=(1,1,0))
     results = arima.fit()
     #根据前期研究，最好的ARIMA模型是ARIMA(1,1,0),一阶差分和一阶自回归，没有滑动平均过程
-
-    test_predict = np.exp(results.fittedvalues[0])
+    test_predict = np.exp(results.fittedvalues[-1])
     #模型拟合出的不是实际值，而是变化率，因此接下来输出时还有一点数学计算，但现在还需要把对数处理还原。
     
     #***输出昨日收盘价格和今日预测价格到日志***
